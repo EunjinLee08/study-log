@@ -25,8 +25,7 @@ web-hacking/
 |-- dvwa/  # Write-ups and payloads for DVWA
 
 web-dev/
-|-- html-css/  # Basic web development projects
-|-- javascript/ # JS scripts and DOM exercises
+|-- projects/  # Basic web development projects
 ```
 
 ## 📝 Notes
