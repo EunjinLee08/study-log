@@ -1,4 +1,4 @@
-# 🖥️ LeetCode Q1. Concatenation of Array
+# 🖥️ LeetCode Q1. Concatenation of Array 🔥 Easy
 
 ## 📌 문제 설명
 길이가 n인 정수 배열이 주어졌을 때, `ans[i] == nums[i]`. `ans[i + n] == nums[i]`인 배열 ans를 return 하라.
