@@ -17,15 +17,11 @@ linux/
 |-- bandit/  # Write-ups for OverTheWire Bandit challenges
 
 system-hacking/
-|-- dreamhack/  # Exploit exercises from Dreamhack
 |-- pwnable.tw/  # CTF challenges from pwnable.tw
 
 web-hacking/
 |-- bwapp/  # Vulnerability practice using bWAPP
 |-- dvwa/  # Write-ups and payloads for DVWA
-
-web-dev/
-|-- projects/  # Basic web development projects
 
 projects/
 |-- 2025_WUISP/  # WUISP project
