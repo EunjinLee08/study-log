@@ -26,6 +26,9 @@ web-hacking/
 
 web-dev/
 |-- projects/  # Basic web development projects
+
+projects/
+|-- 2025_WUISP/  # WUISP project
 ```
 
 ## 📝 Notes
