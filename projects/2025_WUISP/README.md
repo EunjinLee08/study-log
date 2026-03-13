@@ -96,21 +96,6 @@ timeout 600초 설정으로 실습 환경에서 자동 해제.
 
 ---
 
-## 파일 구조
-
-```
-├── README.md
-├── wazuh/
-│   ├── ossec.conf           # Active Response 설정 포함
-│   ├── local_rules.xml      # 커스텀 탐지 룰
-│   ├── local_decoder.xml    # Suricata JSON 로그 파싱용 Decoder
-│   └── wazuh-nft-block.sh   # Active Response 차단 스크립트
-└── suricata/
-    └── local.rules          # Brute Force 탐지 커스텀 룰
-```
-
----
-
 ## 참고 블로그
 
 구현 과정의 단계별 기록은 아래 Velog 시리즈에서 확인할 수 있습니다.  
