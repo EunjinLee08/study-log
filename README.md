@@ -25,6 +25,8 @@ web-hacking/
 
 projects/
 |-- 2025_WUISP/  # WUISP project
+|-- 30th_hacking_camp_ctf/  # Hacking camp CTF
+|-- security-research/  # CVE study
 ```
 
 ## 📝 Notes
