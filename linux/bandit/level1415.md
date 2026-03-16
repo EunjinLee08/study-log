@@ -47,7 +47,7 @@ echo "bandit14 비밀번호" | nc localhost 30000
 bandit14@bandit:~$ telnet localhost 30000
 Trying 127.0.0.1...
 Connected to localhost.
-     ← bandit14 비밀번호 입력
+bandit14 비밀번호 입력
 Correct!
 비밀번호
 ```
