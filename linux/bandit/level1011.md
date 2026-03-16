@@ -38,7 +38,7 @@ cat data.txt | base64 -d
 
 ```bash
 bandit10@bandit:~$ cat data.txt
-VGhlIHBhc3N3b3JkIGlzIDZ6UGV6aUlwcjkzeEVYVEw0M0ZZbW1KYXNUNVVvWXc=
+원문
 
 bandit10@bandit:~$ base64 -d data.txt
 The password is 비밀번호
