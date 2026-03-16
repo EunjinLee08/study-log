@@ -13,15 +13,13 @@ coding-test/
 |-- python/ # Baekjoon problems solved in Python
 
 linux/
-|-- theory/  # Linux OS concepts and commands
 |-- bandit/  # Write-ups for OverTheWire Bandit challenges
 
 system-hacking/
-|-- pwnable.tw/  # CTF challenges from pwnable.tw
+|-- pwnable.tw/  # Write-ups for pwnable.tw challenges
 
-web-hacking/
-|-- bwapp/  # Vulnerability practice using bWAPP
-|-- dvwa/  # Write-ups and payloads for DVWA
+reversing/
+|-- crackme/  # Write-ups for crackme challenges
 
 projects/
 |-- 2025_WUISP/  # WUISP project
